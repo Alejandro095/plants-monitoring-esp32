@@ -51,6 +51,7 @@ void webSocketEvent(const WStype_t& type, uint8_t * payload, const size_t& lengt
       {
         Serial.println("[WSc] Se ha perdido la conexión con el servidor!");
         alreadyConnected = false;
+        digitalWrite(PORT_OUT_SERVER, LOW);
       }
       break;
     case WStype_CONNECTED:
@@ -181,12 +182,15 @@ void loop()
 
   uint64_t now = millis();
 
-  if ((now - newMessageTimestamp < 75) && newMessage == true) {
-    digitalWrite(PORT_OUT_SERVER, LOW);
-  } else {
-    newMessageTimestamp = 0;
-    newMessage = false;
-    digitalWrite(PORT_OUT_SERVER, HIGH);
+  // Control del LED de estado de la conexion del servidor
+  if (alreadyConnected == true) {
+    if ((now - newMessageTimestamp < 75) && newMessage == true) {
+      digitalWrite(PORT_OUT_SERVER, LOW);
+    } else {
+      newMessageTimestamp = 0;
+      newMessage = false;
+      digitalWrite(PORT_OUT_SERVER, HIGH);
+    }  
   }
 
   // Apagar la salida (del pin de del motor) siempre y cuando la accion este activa y haya pasado 4 segundos
